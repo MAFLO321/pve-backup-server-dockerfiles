@@ -1,15 +1,18 @@
-#!/bin/bash
+#!/usr/bin/env bash
 
-if [[ -n "$TZ" ]]; then
-  echo "$TZ" > /etc/timezone
+set -euo pipefail
+
+if [[ -n "${TZ}" ]]; then
+  echo "${TZ}" > /etc/timezone
 fi
 
 chown backup:backup /etc/proxmox-backup
 chmod 700 /etc/proxmox-backup
 
 if [[ ! -e /etc/proxmox-backup/csrf.key ]] && [[ ! -e /etc/proxmox-backup/.initialized ]]; then
-  echo 'Copying defaults into `/etc/proxmox-backup/`'
-  cp -rv /etc/proxmox-backup-default/. /etc/proxmox-backup/
+  echo "Creating defaults at '/etc/proxmox-backup/'"
+  proxmox-backup-manager user create admin@pbs --password pbspbs
+  proxmox-backup-manager acl update / Admin --auth-id admin@pbs
   touch /etc/proxmox-backup/.initialized
 fi
 

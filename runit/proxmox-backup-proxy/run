@@ -1,4 +1,6 @@
-#!/bin/bash
+#!/usr/bin/env bash
+
+set -euo pipefail
 
 if [[ ! -e /etc/proxmox-backup/csrf.key ]]; then
   echo "PROXY: The proxmox-backup is not yet configured!"

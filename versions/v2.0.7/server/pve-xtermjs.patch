@@ -1,20 +1,19 @@
-commit ea6957221067669e15f2d6aed451c29da5a2f2f5
-Author: Kamil Trzciński <ayufan@ayufan.eu>
-Date:   Thu Jun 3 11:41:44 2021 +0200
+From 6d032d7dd797abfa847a8ebf0e71640b7edbfa72 Mon Sep 17 00:00:00 2001
+From: Matthias Freund <matthias88freund@gmail.com>
+Date: Thu, 9 Sep 2021 22:52:14 +0200
+Subject: [PATCH] Cargo config
 
-    Compile using on-disk sources
+---
+ Cargo.toml          | 2 +-
+ debian/cargo_config | 2 ++
+ debian/compat       | 1 +
+ debian/docs         | 1 -
+ debian/rules        | 7 +++++++
+ 5 files changed, 11 insertions(+), 2 deletions(-)
+ create mode 100644 debian/cargo_config
+ create mode 100644 debian/compat
+ delete mode 100644 debian/docs
 
-diff --git a/.cargo/config b/.cargo/config
-deleted file mode 100644
-index 3b5b6e4..0000000
---- a/.cargo/config
-+++ /dev/null
-@@ -1,5 +0,0 @@
--[source]
--[source.debian-packages]
--directory = "/usr/share/cargo/registry"
--[source.crates-io]
--replace-with = "debian-packages"
 diff --git a/Cargo.toml b/Cargo.toml
 index ffd72b2..80ba2c8 100644
 --- a/Cargo.toml
@@ -25,13 +24,6 @@ index ffd72b2..80ba2c8 100644
  clap = "2.33"
 -proxmox = { version = "0.10.0", default-features = false }
 +proxmox = { path = "../proxmox/proxmox", default-features = false }
-diff --git a/debian/cargo-checksum.json b/debian/cargo-checksum.json
-new file mode 100644
-index 0000000..0967ef4
---- /dev/null
-+++ b/debian/cargo-checksum.json
-@@ -0,0 +1 @@
-+{}
 diff --git a/debian/cargo_config b/debian/cargo_config
 new file mode 100644
 index 0000000..38bd089
@@ -42,34 +34,11 @@ index 0000000..38bd089
 +rustflags = []
 diff --git a/debian/compat b/debian/compat
 new file mode 100644
-index 0000000..b4de394
+index 0000000..48082f7
 --- /dev/null
 +++ b/debian/compat
 @@ -0,0 +1 @@
-+11
-diff --git a/debian/control b/debian/control
-index d9612f8..0a35e40 100644
---- a/debian/control
-+++ b/debian/control
-@@ -2,16 +2,10 @@ Source: rust-termproxy
- Section: admin
- Priority: optional
- Build-Depends: debhelper (>= 12),
-- dh-cargo (>= 24),
-+ dh-cargo,
-  cargo:native,
-  rustc:native,
-- libstd-rust-dev,
-- librust-clap-2+default-dev (>= 2.33-~~),
-- librust-curl-0.4+default-dev,
-- librust-mio-0.7+default-dev,
-- librust-mio-0.7+net-dev,
-- librust-mio-0.7+os-ext-dev,
-- librust-proxmox-0.10-dev
-+ libstd-rust-dev
- Maintainer: Proxmox Support Team <support@proxmox.com>
- Standards-Version: 4.5.1
- Vcs-Git: git://git.proxmox.com/git/pve-xtermjs.git
++12
 diff --git a/debian/docs b/debian/docs
 deleted file mode 100644
 index 8696672..0000000
@@ -78,13 +47,16 @@ index 8696672..0000000
 @@ -1 +0,0 @@
 -debian/SOURCE
 diff --git a/debian/rules b/debian/rules
-index 2b62edd..b34534f 100755
+index 2b62edd..2047402 100755
 --- a/debian/rules
 +++ b/debian/rules
-@@ -3,8 +3,14 @@
+@@ -3,6 +3,13 @@
  %:
  	dh $@ --buildsystem cargo
  
++override_dh_auto_test:
++	# ignore here to avoid rebuilding the binaries with the wrong target
++
 +override_dh_auto_configure:
 +	mkdir -p debian/cargo_home/
 +	cp -av debian/cargo_config debian/cargo_home/config
@@ -92,7 +64,6 @@ index 2b62edd..b34534f 100755
  override_dh_auto_build:
  	dh_auto_build
  	sed -e 's/@VERSION@/${VERSION}/' src/www/index.html.tpl.in > src/www/index.html.tpl
- 	sed -e 's/@VERSION@/${VERSION}/' src/www/index.html.hbs.in > src/www/index.html.hbs
- 	rm src/www/index.html.tpl.in src/www/index.html.hbs.in
-+
-+override_dh_auto_test:
+-- 
+2.33.0
+

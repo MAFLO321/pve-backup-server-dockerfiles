@@ -1,8 +1,17 @@
-commit 1b425b8fd31147524f81c549ccbf0318a75f1c9e
-Author: Kamil Trzciński <ayufan@ayufan.eu>
-Date:   Sat May 1 14:40:06 2021 +0200
+From 9debfa6dc7829d8ae22acd2da7bc05610904f8ef Mon Sep 17 00:00:00 2001
+From: Matthias Freund <matthias88freund@gmail.com>
+Date: Mon, 13 Sep 2021 20:52:32 +0200
+Subject: [PATCH 3/3] Fix multiarch
 
-    Support local compile
+---
+ debian/proxmox-backup-file-restore.install            |  3 ++-
+ ...stinst => proxmox-backup-file-restore.postinst.in} |  2 +-
+ debian/proxmox-backup-server.install                  | 11 ++++++-----
+ debian/rules                                          |  9 +++++++++
+ 4 files changed, 18 insertions(+), 7 deletions(-)
+ mode change 100644 => 100755 debian/proxmox-backup-file-restore.install
+ rename debian/{proxmox-backup-file-restore.postinst => proxmox-backup-file-restore.postinst.in} (96%)
+ mode change 100644 => 100755 debian/proxmox-backup-server.install
 
 diff --git a/debian/proxmox-backup-file-restore.install b/debian/proxmox-backup-file-restore.install
 old mode 100644
@@ -17,6 +26,22 @@ index d952836e..e6888c5f
  usr/share/zsh/vendor-completions/_proxmox-file-restore
 -usr/lib/x86_64-linux-gnu/proxmox-backup/file-restore/proxmox-restore-daemon
 +usr/lib/${DEB_HOST_MULTIARCH}/proxmox-backup/file-restore/proxmox-restore-daemon
+diff --git a/debian/proxmox-backup-file-restore.postinst b/debian/proxmox-backup-file-restore.postinst.in
+similarity index 96%
+rename from debian/proxmox-backup-file-restore.postinst
+rename to debian/proxmox-backup-file-restore.postinst.in
+index feb0557b..73ed6259 100755
+--- a/debian/proxmox-backup-file-restore.postinst
++++ b/debian/proxmox-backup-file-restore.postinst.in
+@@ -4,7 +4,7 @@ set -e
+ 
+ update_initramfs() {
+     # regenerate initramfs for single file restore VM
+-    INST_PATH="/usr/lib/x86_64-linux-gnu/proxmox-backup/file-restore"
++    INST_PATH="/usr/lib/@DEB_HOST_MULTIARCH@/proxmox-backup/file-restore"
+     CACHE_PATH="/var/cache/proxmox-backup/file-restore-initramfs.img"
+     CACHE_PATH_DBG="/var/cache/proxmox-backup/file-restore-initramfs-debug.img"
+ 
 diff --git a/debian/proxmox-backup-server.install b/debian/proxmox-backup-server.install
 old mode 100644
 new mode 100755
@@ -45,14 +70,36 @@ index cebf84a3..fa96f93e
  usr/bin/pmtx
  usr/bin/pmt
 diff --git a/debian/rules b/debian/rules
-index 4fc6de8f..fcbf7e93 100755
+index 9a07db1d..065e6768 100755
 --- a/debian/rules
 +++ b/debian/rules
 @@ -2,6 +2,7 @@
  # See debhelper(7) (uncomment to enable)
  # output every command that modifies files on the build system.
  DH_VERBOSE = 1
-+DEB_HOST_MULTIARCH ?= $(shell dpkg-architecture -qDEB_HOST_MULTIARCH) 
++DEB_HOST_MULTIARCH ?= $(shell dpkg-architecture -qDEB_HOST_MULTIARCH)
  
  include /usr/share/dpkg/pkg-info.mk
  include /usr/share/rustc/architecture.mk
+@@ -36,6 +37,10 @@ override_dh_auto_install:
+ 	    PROXY_USER=backup \
+ 	    LIBDIR=/usr/lib/$(DEB_HOST_MULTIARCH)
+ 
++GENERATED_MAINTAINER_SCRIPTS := $(patsubst %.in,%,$(wildcard debian/*.postinst.in debian/*.prerm.in debian/*.links.in))
++$(GENERATED_MAINTAINER_SCRIPTS): %: %.in
++	sed 's/@DEB_HOST_MULTIARCH@/$(DEB_HOST_MULTIARCH)/g' < $< > $@
++
+ override_dh_installsystemd:
+ 	dh_installsystemd -pproxmox-backup-server  proxmox-backup-daily-update.timer
+ 	# note: we start/try-reload-restart services manually in postinst
+@@ -56,3 +61,7 @@ override_dh_strip:
+ 
+ override_dh_compress:
+ 	dh_compress -X.pdf
++
++override_dh_auto_clean:
++	dh_auto_clean
++	rm -f $(GENERATED_MAINTAINER_SCRIPTS)
+-- 
+2.33.0
+
