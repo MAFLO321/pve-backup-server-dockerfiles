@@ -1,0 +1,33 @@
+From 3b1540ee1d4e8aa196235a82db8c2f0ff16b3096 Mon Sep 17 00:00:00 2001
+From: Matthias Freund <matthias88freund@gmail.com>
+Date: Sun, 26 Sep 2021 19:08:06 +0200
+Subject: [PATCH] Cargo config
+
+---
+ Cargo.toml | 10 +++++++---
+ 1 file changed, 7 insertions(+), 3 deletions(-)
+
+diff --git a/Cargo.toml b/Cargo.toml
+index 99c56f04..dbac3ca8 100644
+--- a/Cargo.toml
++++ b/Cargo.toml
+@@ -114,9 +114,13 @@ pbs-tape = { path = "pbs-tape" }
+ # Local path overrides
+ # NOTE: You must run `cargo update` after changing this for it to take effect!
+ [patch.crates-io]
+-#proxmox = { path = "../proxmox/proxmox" }
+-#proxmox-http = { path = "../proxmox/proxmox-http" }
+-#pxar = { path = "../pxar" }
++proxmox = { path = "../proxmox/proxmox" }
++proxmox-acme-rs = { path = "../proxmox-acme-rs" }
++proxmox-apt = { path = "../proxmox-apt" }
++proxmox-fuse = { path = "../proxmox-fuse" }
++proxmox-http = { path = "../proxmox/proxmox-http" }
++proxmox-openid = { path = "../proxmox-openid-rs" }
++pxar = { path = "../pxar" }
+ 
+ [features]
+ default = []
+-- 
+2.33.0
+

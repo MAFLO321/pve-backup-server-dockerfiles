@@ -1,0 +1,27 @@
+From 823b6000e3af70b4a4fe3363221bde9fe9b1e0e2 Mon Sep 17 00:00:00 2001
+From: Matthias Freund <matthias88freund@gmail.com>
+Date: Thu, 9 Sep 2021 21:24:25 +0200
+Subject: [PATCH] Don't use debian cargo registry
+
+---
+ debian/rules | 4 ----
+ 1 file changed, 4 deletions(-)
+
+diff --git a/debian/rules b/debian/rules
+index 1a00a100..9a07db1d 100755
+--- a/debian/rules
++++ b/debian/rules
+@@ -20,10 +21,6 @@ export DEB_CARGO_PACKAGE=proxmox-backup
+ %:
+ 	dh $@ --with=bash-completion
+
+-override_dh_auto_configure:
+-	$(CARGO) prepare-debian $(CURDIR)/debian/cargo_registry --link-from-system
+-	dh_auto_configure
+-
+ override_dh_auto_build:
+ 	dh_auto_build -- \
+ 	    PROXY_USER=backup \
+-- 
+2.33.0
+
